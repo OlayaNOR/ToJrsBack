@@ -30,7 +30,7 @@ public class Job {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private WorkingMode typeJob;
+    private WorkingMode workingMode;
 
     @Column
     @Enumerated(EnumType.STRING)
