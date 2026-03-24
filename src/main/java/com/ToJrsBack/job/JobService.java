@@ -1,5 +1,7 @@
 package com.ToJrsBack.job;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -88,5 +90,30 @@ public class JobService {
         }
 
         return (Company) user;
+    }
+
+    public List<Job> filter(String country, String city, WorkingMode mode) {
+
+        if (mode != null && country != null) {
+            return repository.findByWorkingModeAndCountryContainingIgnoreCase(mode, country);
+        }
+
+        if (mode != null && city != null) {
+            return repository.findByWorkingModeAndCityContainingIgnoreCase(mode, city);
+        }
+
+        if (mode != null) {
+            return repository.findByWorkingMode(mode);
+        }
+
+        if (country != null) {
+            return repository.findByCountryContainingIgnoreCase(country);
+        }
+
+        if (city != null) {
+            return repository.findByCityContainingIgnoreCase(city);
+        }
+
+        return repository.findAll();
     }
 }
