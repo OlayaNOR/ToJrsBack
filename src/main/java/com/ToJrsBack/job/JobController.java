@@ -33,9 +33,11 @@ public class JobController {
     public List<Job> filter(
             @RequestParam(required = false) String country,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) WorkingMode mode
+            @RequestParam(required = false) WorkingMode mode,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) KindJob kindJob
     ) {
-        return jobService.filter(country, city, mode);
+        return jobService.filter(country, city, mode, title, kindJob);
     }
     
 }

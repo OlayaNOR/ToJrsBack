@@ -92,7 +92,15 @@ public class JobService {
         return (Company) user;
     }
 
-    public List<Job> filter(String country, String city, WorkingMode mode) {
+    public List<Job> filter(String country, String city, WorkingMode mode, String title, KindJob kindJob) {
+
+        if (mode != null && title != null && city != null) {
+            return repository.findByWorkingModeAndTitleContainingIgnoreCaseAndCity(mode, title, city);
+        }
+
+        if (mode != null && country != null && title != null) {
+            return repository.findByWorkingModeAndTitleContainingIgnoreCaseAndCountry(mode, title, country);
+        }
 
         if (mode != null && country != null) {
             return repository.findByWorkingModeAndCountryContainingIgnoreCase(mode, country);
@@ -102,12 +110,24 @@ public class JobService {
             return repository.findByWorkingModeAndCityContainingIgnoreCase(mode, city);
         }
 
+        if (mode != null && kindJob != null) {
+            return repository.findByKindJobAndWorkingMode(mode, kindJob);
+        }
+
+        if (mode != null && title != null) {
+            return repository.findByWorkingModeAndTitleContainingIgnoreCase(mode, title);
+        }
+
         if (mode != null) {
             return repository.findByWorkingMode(mode);
         }
 
         if (country != null) {
             return repository.findByCountryContainingIgnoreCase(country);
+        }
+
+        if (title != null) {
+            return repository.findByTitleContainingIgnoreCase(title);
         }
 
         if (city != null) {
