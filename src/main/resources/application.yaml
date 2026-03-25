@@ -13,6 +13,17 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tojrscorp@gmail.com
+    password: ltyrrzwbdcfekkmi
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
     
 
 jwt:

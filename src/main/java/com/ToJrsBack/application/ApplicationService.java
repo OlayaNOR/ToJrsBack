@@ -1,6 +1,7 @@
 package com.ToJrsBack.application;
 
 import com.ToJrsBack.company.Company;
+import com.ToJrsBack.config.EmailService;
 import com.ToJrsBack.job.Job;
 import com.ToJrsBack.job.JobRepository;
 import com.ToJrsBack.junior.Junior;
@@ -18,6 +19,9 @@ public class ApplicationService {
 
     @Autowired
     private ApplicationRepository applicationRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private JobRepository jobRepository;
@@ -122,6 +126,8 @@ public class ApplicationService {
         app.setStatus(req.getStatus());
 
         Application updated = applicationRepository.save(app);
+                emailService.sendApplicationStatusEmail(
+                app.getJunior().getEmail(), app);
 
         return ApplicationResponse.builder()
                 .id(updated.getId())
