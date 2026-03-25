@@ -133,5 +133,45 @@ public class ApplicationService {
                 .createdAt(updated.getCreatedAt())
                 .build();
     }
+
+    public List<ApplicationResponse> getMyApplications(ApplicationStatus status) {
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Solo juniors
+        if (!(user instanceof Junior)) {
+                throw new RuntimeException("Only juniors can see the applications");
+        }
+
+        Junior junior = (Junior) user;
+
+        List<Application> applications;
+
+        if (status != null) {
+                applications = applicationRepository
+                        .findByJuniorIdAndStatus(junior.getId(), status);
+        } else {
+                applications = applicationRepository
+                        .findByJuniorId(junior.getId());
+        }
+
+        return applications.stream()
+                .map(app -> ApplicationResponse.builder()
+                        .id(app.getId())
+                        .jobId(app.getJob().getId())
+                        .juniorId(app.getJunior().getId())
+                        .juniorName(app.getJunior().getName())
+                        .jobTitle(app.getJob().getTitle())
+                        .status(app.getStatus())
+                        .createdAt(app.getCreatedAt())
+                        .build()
+                )
+                .toList();
+        }
     
 }

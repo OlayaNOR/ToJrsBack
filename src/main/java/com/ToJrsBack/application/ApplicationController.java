@@ -29,4 +29,10 @@ public class ApplicationController {
             @RequestBody UpdateStatusRequest req) {
         return applicationService.updateStatus(id, req);
     }
+
+    @GetMapping("/me")
+    public List<ApplicationResponse> getMyApplications(
+            @RequestParam(required = false) ApplicationStatus status) {
+        return applicationService.getMyApplications(status);
+    }
 }
