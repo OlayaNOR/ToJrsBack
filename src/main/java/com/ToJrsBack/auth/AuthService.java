@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.ToJrsBack.company.Company;
 import com.ToJrsBack.company.CompanyRepository;
+import com.ToJrsBack.config.EmailService;
 import com.ToJrsBack.junior.Junior;
 import com.ToJrsBack.junior.JuniorRepository;
 import com.ToJrsBack.security.JwtUtil;
@@ -28,6 +29,9 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -54,6 +58,9 @@ public class AuthService {
             junior.setName(request.getName());
 
             juniorRepository.save(junior);
+
+            emailService.sendWelcomeEmail(junior.getEmail(), junior);
+
 
         } else if (request.getRole().equalsIgnoreCase("COMPANY")) {
 
