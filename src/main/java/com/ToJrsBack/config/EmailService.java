@@ -1,7 +1,6 @@
 package com.ToJrsBack.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -42,18 +41,22 @@ public class EmailService {
     @Async
     public void sendWelcomeEmail(String to, User user) {
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Welcome to ToJrs!!");
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        message.setText(
-            "Hi " + user.getName() + ",\n\n" +
-            "Welcome to ToJrs!\n\n" +
-            "We started this project thinking in you and how can you get what you deserved, the place where experiences is shown, not asked for. We invite you to check our jobs and complete the test to improve your posibilities.\n\n" +
-            "Best,\nToJrs Team."
-        );
+            helper.setTo(to);
+            helper.setSubject("Welcome to ToJrs 🚀");
 
-        mailSender.send(message);
+            String htmlContent = buildWelcomeHtml(user.getName());
+
+            helper.setText(htmlContent, true); // 🔥 HTML
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error sending welcome email", e);
+        }
     }
 
     private String buildHtml(String name, String jobTitle, String status) {
@@ -102,5 +105,59 @@ public class EmailService {
                 </div>
             </div>
             """.formatted(name, jobTitle, color, status);
+    }
+
+    private String buildWelcomeHtml(String name) {
+
+        return """
+            <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+                <div style="max-width:600px; margin:auto; background:white; border-radius:10px; padding:25px;">
+
+                    <!-- Logo -->
+                    <div style="text-align:center;">
+                        <img src="https://TU-LOGO-URL.png" width="120"/>
+                    </div>
+
+                    <!-- Title -->
+                    <h2 style="color:#333; text-align:center;">
+                        Welcome to ToJrs 🚀
+                    </h2>
+
+                    <!-- Greeting -->
+                    <p style="color:#555;">
+                        Hi <strong>%s</strong> 👋,
+                    </p>
+
+                    <!-- Body -->
+                    <p style="color:#555;">
+                        We're excited to have you here!
+                    </p>
+
+                    <p style="color:#555;">
+                        We built ToJrs thinking about you — a place where your <strong>skills and potential</strong> matter more than years of experience.
+                    </p>
+
+                    <p style="color:#555;">
+                        Start exploring opportunities and complete technical tests to boost your profile.
+                    </p>
+
+                    <!-- CTA -->
+                    <div style="text-align:center; margin:25px 0;">
+                        <a href="https://tojrs.com/jobs"
+                        style="background:#007bff; color:white; padding:12px 20px; border-radius:6px; text-decoration:none; font-weight:bold;">
+                        Explore Jobs
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <hr/>
+
+                    <p style="font-size:12px; color:#999; text-align:center;">
+                        — ToJrs Team
+                    </p>
+
+                </div>
+            </div>
+            """.formatted(name);
     }
 }
