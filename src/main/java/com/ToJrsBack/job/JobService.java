@@ -20,6 +20,10 @@ public class JobService {
         this.repository = repository;
         this.userRepository = userRepository;
     }
+
+    public List<Job> getAll() {
+        return repository.findAll();
+    }
     
     public void create(JobRequest req){
         System.out.println(req);

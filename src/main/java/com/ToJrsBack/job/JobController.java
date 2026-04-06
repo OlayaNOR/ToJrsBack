@@ -23,6 +23,11 @@ public class JobController {
     @Autowired
     private JobService jobService;
 
+    @GetMapping("/all")
+    public List<Job> getAllJobs() {
+        return jobService.getAll();
+    }
+
     @PostMapping("/new")
     public ResponseEntity<String> create(@RequestBody JobRequest req) {
         jobService.create(req);
