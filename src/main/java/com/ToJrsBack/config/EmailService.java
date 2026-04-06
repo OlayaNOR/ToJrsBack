@@ -3,11 +3,14 @@ package com.ToJrsBack.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.ToJrsBack.application.Application;
 import com.ToJrsBack.user.User;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class EmailService {
@@ -16,20 +19,24 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     @Async
-    public void sendApplicationStatusEmail(String to, Application app) {
+    public void sendApplicationStatusEmail(Application application) {
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Application Update - ToJrs");
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        message.setText(
-            "Hi " + app.getJunior().getName() + ",\n\n" +
-            "Good news!\n\n" +
-            "Your application to \"" + app.getJob().getTitle() + "\" has been " + app.getStatus() + ".\n\n" +
-            "Best,\nToJrs Team"
-        );
+            helper.setTo(application.getJunior().getEmail());
+            helper.setSubject("Application Update - ToJrs");
 
-        mailSender.send(message);
+            String htmlContent = buildHtml(application.getJunior().getName(), application.getJob().getTitle(), application.getStatus().toString());
+
+            helper.setText(htmlContent, true); // 🔥 true = HTML
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error sending email", e);
+        }
     }
 
     @Async
@@ -47,5 +54,53 @@ public class EmailService {
         );
 
         mailSender.send(message);
+    }
+
+    private String buildHtml(String name, String jobTitle, String status) {
+
+        String color = switch (status) {
+            case "ACCEPTED" -> "#28a745";
+            case "REJECTED" -> "#dc3545";
+            case "REVIEWED" -> "#ffc107";
+            default -> "#007bff";
+        };
+
+        return """
+            <div style="font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;">
+                <div style="max-width:600px; margin:auto; background:white; border-radius:10px; padding:20px;">
+                    
+                    <div style="text-align:center;">
+                        <img src="https://res.cloudinary.com/dihidgdog/image/upload/v1775491001/NoBGLogo_qhqmld.png" width="120"/>
+                    </div>
+
+                    <h2 style="color:#333;">Hi %s 👋</h2>
+
+                    <p style="color:#555;">
+                        We have an update regarding your application:
+                    </p>
+
+                    <div style="background:#f9f9f9; padding:15px; border-radius:8px;">
+                        <p><strong>Position:</strong> %s</p>
+                        <p>
+                            <strong>Status:</strong> 
+                            <span style="color:%s; font-weight:bold;">
+                                %s
+                            </span>
+                        </p>
+                    </div>
+
+                    <p style="margin-top:20px;">
+                        Keep going — you're doing great 🚀
+                    </p>
+
+                    <hr/>
+
+                    <p style="font-size:12px; color:#999;">
+                        — ToJrs Team
+                    </p>
+
+                </div>
+            </div>
+            """.formatted(name, jobTitle, color, status);
     }
 }

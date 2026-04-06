@@ -126,8 +126,7 @@ public class ApplicationService {
         app.setStatus(req.getStatus());
 
         Application updated = applicationRepository.save(app);
-                emailService.sendApplicationStatusEmail(
-                app.getJunior().getEmail(), app);
+                emailService.sendApplicationStatusEmail(updated);
 
         return ApplicationResponse.builder()
                 .id(updated.getId())
